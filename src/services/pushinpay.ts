@@ -58,7 +58,8 @@ export async function createPixCharge(amount: number) {
     } catch (error: any) {
         if (axios.isAxiosError(error)) {
              console.error('Error creating Pushin Pay charge:', error.response?.data || error.message);
-             throw new Error(error.response?.data?.message || 'Failed to create Pix charge with Pushin Pay');
+             // Lança um erro mais detalhado para a action capturar
+             throw new Error(error.response?.data?.message || 'Falha ao criar cobrança Pix. Verifique as credenciais e a URL da API.');
         }
        throw error;
     }
@@ -77,7 +78,7 @@ export async function checkTransactionStatus(transactionId: number) {
     } catch (error: any) {
         if (axios.isAxiosError(error)) {
             console.error('Error checking transaction status:', error.response?.data || error.message);
-            throw new Error(error.response?.data?.message || 'Failed to check transaction status');
+            throw new Error(error.response?.data?.message || 'Falha ao verificar o status da transação.');
         }
         throw error;
     }
