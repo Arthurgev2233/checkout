@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Utiliza a variável de ambiente para a URL da API, com um valor padrão para o domínio principal.
-const PUSHINPAY_API_URL = process.env.PIX_API_URL || 'https://api.pushinpay.com.br/api';
+// A URL base da API agora é gerenciada internamente para garantir consistência.
+const PUSHINPAY_API_URL = 'https://api.pushinpay.com.br/api';
 const API_TOKEN = process.env.PIX_API_TOKEN;
 
 const api = axios.create({
@@ -40,12 +40,11 @@ export async function createPixCharge(amount: number) {
     }
     
     const payload = {
-        value: amount * 100, // API expects value in cents
+        value: amount * 100, // API espera o valor em centavos
         webhook_url: "https://seu-site.com/webhook",
     };
 
     try {
-        // O caminho agora é relativo à URL base correta
         const response = await api.post<PushinPayPixResponse>('/pix/cashIn', payload);
         const { id, qr_code, qr_code_base64, payment_url } = response.data;
         
@@ -57,11 +56,12 @@ export async function createPixCharge(amount: number) {
         };
     } catch (error: any) {
         if (axios.isAxiosError(error)) {
-             console.error('Error creating Pushin Pay charge:', error.response?.data || error.message);
+             const apiError = error.response?.data?.message || error.message;
+             console.error('Error creating Pushin Pay charge:', apiError);
              // Lança um erro mais detalhado para a action capturar
-             throw new Error(error.response?.data?.message || 'Falha ao criar cobrança Pix. Verifique as credenciais e a URL da API.');
+             throw new Error(`Falha ao criar cobrança Pix. Detalhe: ${apiError}`);
         }
-       throw error;
+       throw new Error('Ocorreu um erro desconhecido ao se comunicar com a API de pagamento.');
     }
 }
 
@@ -77,9 +77,10 @@ export async function checkTransactionStatus(transactionId: number) {
         };
     } catch (error: any) {
         if (axios.isAxiosError(error)) {
-            console.error('Error checking transaction status:', error.response?.data || error.message);
-            throw new Error(error.response?.data?.message || 'Falha ao verificar o status da transação.');
+            const apiError = error.response?.data?.message || error.message;
+            console.error('Error checking transaction status:', apiError);
+            throw new Error(`Falha ao verificar o status da transação. Detalhe: ${apiError}`);
         }
-        throw error;
+        throw new Error('Ocorreu um erro desconhecido ao verificar o status do pagamento.');
     }
 }
