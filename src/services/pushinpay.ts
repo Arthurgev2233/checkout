@@ -3,19 +3,27 @@ import axios from 'axios';
 const PUSHINPAY_API_URL = 'https://api.pushinpay.com.br/api';
 const API_TOKEN = process.env.PUSHINPAY_API_TOKEN;
 
-// Removida a verificação no nível do módulo para permitir que o erro seja tratado na chamada da função
-// if (!API_TOKEN) {
-//     console.error("PUSHINPAY_API_TOKEN is not set in the environment variables.");
-// }
-
 const api = axios.create({
   baseURL: PUSHINPAY_API_URL,
   headers: {
-    'Authorization': `Bearer ${API_TOKEN}`,
+    // O token será adicionado por um interceptor para garantir que ele seja verificado a cada requisição.
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
 });
+
+// Adiciona um interceptor para verificar e injetar o token em cada requisição
+api.interceptors.request.use(config => {
+    if (!API_TOKEN) {
+        // Lança um erro claro que pode ser capturado pelo nosso action.
+        throw new Error("PushinPay API token is not configured.");
+    }
+    config.headers.Authorization = `Bearer ${API_TOKEN}`;
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
 
 interface PushinPayPixResponse {
     id: number;
@@ -29,10 +37,6 @@ interface TransactionStatusResponse {
 }
 
 export async function createPixCharge(amount: number) {
-    if (!API_TOKEN) {
-        throw new Error("PushinPay API token is not configured.");
-    }
-    
     const payload = {
         value: amount * 100, // API expects value in cents
         webhook_url: "https://seu-site.com/webhook", // As per your example
@@ -49,23 +53,28 @@ export async function createPixCharge(amount: number) {
             paymentUrl: payment_url,
         };
     } catch (error: any) {
-        console.error('Error creating Pushin Pay charge:', error.response?.data || error.message);
-        throw new Error(error.response?.data?.message || 'Failed to create Pix charge with Pushin Pay');
+        // Se o erro foi lançado pelo interceptor, ele será repassado.
+        if (axios.isAxiosError(error)) {
+             console.error('Error creating Pushin Pay charge:', error.response?.data || error.message);
+             throw new Error(error.response?.data?.message || 'Failed to create Pix charge with Pushin Pay');
+        }
+       // Repassa o erro do interceptor
+       throw error;
     }
 }
 
 export async function checkTransactionStatus(transactionId: number) {
-     if (!API_TOKEN) {
-        throw new Error("PushinPay API token is not configured.");
-    }
-
     try {
         const response = await api.get<TransactionStatusResponse>(`/transactions/${transactionId}`);
         return {
             status: response.data.status
         };
     } catch (error: any) {
-        console.error('Error checking transaction status:', error.response?.data || error.message);
-        throw new Error(error.response?.data?.message || 'Failed to check transaction status');
+        if (axios.isAxiosError(error)) {
+            console.error('Error checking transaction status:', error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || 'Failed to check transaction status');
+        }
+        // Repassa o erro do interceptor
+        throw error;
     }
 }
