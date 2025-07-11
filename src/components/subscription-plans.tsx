@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
-import { Clipboard, ClipboardCheck, Loader2, PartyPopper, ChevronDown } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Loader2, PartyPopper } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import confetti from 'canvas-confetti';
 import { Badge } from '@/components/ui/badge';
@@ -30,13 +30,13 @@ interface Plan {
   name: string;
   price: number;
   description: string;
-  isPopular?: boolean;
+  badgeText?: string;
 }
 
 const allPlans: Plan[] = [
-  { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.', isPopular: true },
-  { name: '90 DIAS', price: 47.00, description: 'Acesso completo por 90 dias.' },
-  { name: '1 ANO', price: 87.00, description: 'Acesso completo por 1 ano.' },
+  { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.', badgeText: 'Mais comprado 🔥' },
+  { name: '90 DIAS', price: 47.00, description: 'Acesso completo por 90 dias.', badgeText: 'Economia' },
+  { name: '1 ANO', price: 87.00, description: 'Acesso completo por 1 ano.', badgeText: 'Melhor oferta' },
 ];
 
 export function SubscriptionPlans() {
@@ -47,7 +47,7 @@ export function SubscriptionPlans() {
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'paid'>('pending');
   const [modalPlanDetails, setModalPlanDetails] = useState<Plan | null>(null);
 
-  const [mainPlan, setMainPlan] = useState<Plan>(() => allPlans.find(p => p.isPopular) || allPlans[0]);
+  const [mainPlan, setMainPlan] = useState<Plan>(() => allPlans.find(p => p.badgeText?.includes('Mais comprado')) || allPlans[0]);
 
   const { toast } = useToast();
   
@@ -152,7 +152,7 @@ export function SubscriptionPlans() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-xl font-bold">{mainPlan.name}</CardTitle>
-                {mainPlan.isPopular && <Badge variant="outline" className="text-accent border-accent/80">Mais comprado 🔥</Badge>}
+                {mainPlan.badgeText && <Badge variant="outline" className="text-accent border-accent/80">{mainPlan.badgeText}</Badge>}
               </div>
                <p className="text-muted-foreground">
                     Valor: <span className="font-semibold text-primary">{formatPrice(mainPlan.price)}</span>
@@ -190,7 +190,10 @@ export function SubscriptionPlans() {
                               data-ai-hint="logo icon"
                             />
                           <div>
-                            <p className="font-bold">{plan.name}</p>
+                            <div className="flex items-center gap-2">
+                               <p className="font-bold">{plan.name}</p>
+                               {plan.badgeText && <Badge variant="outline" className="text-accent border-accent/80">{plan.badgeText}</Badge>}
+                            </div>
                             <p className="text-sm text-muted-foreground">
                                 Valor: <span className="font-semibold text-primary">{formatPrice(plan.price)}</span>
                             </p>
