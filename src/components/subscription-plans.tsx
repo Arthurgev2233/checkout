@@ -241,7 +241,7 @@ export function SubscriptionPlans() {
                   </div>
                 ) : (
                   <>
-                    <p className="text-center text-muted-foreground mb-4">
+                    <p className="text-center text-foreground mb-4">
                       Abra o app do seu banco, escaneie o QR Code ou copie o código abaixo.
                     </p>
                     <div className="p-2 border-2 border-dashed border-accent rounded-lg bg-background mb-4">
