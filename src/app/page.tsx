@@ -1,10 +1,8 @@
-import { PixPayment } from '@/components/pix-payment';
+import { SubscriptionPlans } from '@/components/subscription-plans';
 import { AiAssistant } from '@/components/ai-assistant';
 import Image from 'next/image';
 
 export default function Home() {
-  const subscriptionPrice = "R$3,50";
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <main className="w-full max-w-4xl mx-auto">
@@ -25,7 +23,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <div className="w-full">
-            <PixPayment price={3.50} />
+            <SubscriptionPlans />
           </div>
           <div className="w-full">
             <AiAssistant />

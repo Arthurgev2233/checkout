@@ -13,7 +13,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Clipboard, ClipboardCheck, QrCode, Loader2, PartyPopper } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Loader2, PartyPopper, Star, Crown, Gem } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import confetti from 'canvas-confetti';
 
@@ -23,29 +23,35 @@ interface PixData {
   qrCodeText: string;
 }
 
-interface PixPaymentProps {
+interface Plan {
+  name: string;
   price: number;
+  description: string;
+  icon: React.ElementType;
 }
 
-export function PixPayment({ price }: PixPaymentProps) {
+const plans: Plan[] = [
+  { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.', icon: Star },
+  { name: '90 DIAS', price: 47.00, description: 'Acesso completo por 90 dias.', icon: Crown },
+  { name: '1 ANO', price: 87.00, description: 'Acesso completo por 1 ano.', icon: Gem },
+];
+
+export function SubscriptionPlans() {
   const [isCopied, setIsCopied] = useState(false);
   const [pixData, setPixData] = useState<PixData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'paid'>('pending');
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const { toast } = useToast();
 
-  const formattedPrice = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(price);
-
-  const handleGeneratePix = async () => {
-    setIsLoading(true);
+  const handleGeneratePix = async (plan: Plan) => {
+    setIsLoading(plan.name);
     setPixData(null);
     setPaymentStatus('pending');
+    setSelectedPlan(plan);
 
-    const result = await generatePixPayment({ amount: price });
+    const result = await generatePixPayment({ amount: plan.price });
 
     if (result.success && result.data) {
       setPixData(result.data);
@@ -57,7 +63,7 @@ export function PixPayment({ price }: PixPaymentProps) {
         description: result.error || 'Algo deu errado. Tente novamente.',
       });
     }
-    setIsLoading(false);
+    setIsLoading(null);
   };
 
   const handleCopy = () => {
@@ -110,49 +116,61 @@ export function PixPayment({ price }: PixPaymentProps) {
   const closeModal = () => {
     setIsModalOpen(false);
     setPixData(null);
+    setSelectedPlan(null);
   };
+
+  const formatPrice = (price: number) => new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(price);
 
   return (
     <>
-      <Card className="w-full shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <div className="bg-primary/10 p-2 rounded-full">
-              <QrCode className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl font-bold">Pague com Pix</CardTitle>
-              <CardDescription>
-                Valor da assinatura: <span className="font-semibold text-primary">{formattedPrice}</span>
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
+      <div className="space-y-4">
+        {plans.map((plan) => (
+          <Card key={plan.name} className="w-full shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <plan.icon className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
+                  <CardDescription>
+                    Valor: <span className="font-semibold text-primary">{formatPrice(plan.price)}</span>
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
 
-        <CardContent className="flex flex-col items-center justify-center min-h-[150px]">
-          <p className="text-muted-foreground text-center mb-6">
-            Clique no botão abaixo para gerar o QR Code e o código para o pagamento. É rápido e seguro.
-          </p>
-          <Button onClick={handleGeneratePix} size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Gerando...
-              </>
-            ) : (
-              'Gerar Pix para Pagamento'
-            )}
-          </Button>
-        </CardContent>
-      </Card>
+            <CardContent className="flex flex-col items-start justify-center">
+              <p className="text-muted-foreground mb-4">
+                {plan.description}
+              </p>
+              <Button onClick={() => handleGeneratePix(plan)} size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!!isLoading}>
+                {isLoading === plan.name ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  'Assinar agora'
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md" onEscapeKeyDown={closeModal}>
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-bold">Pagamento via PIX</DialogTitle>
-            <DialogDescription className="text-center">
-              Plano de Assinatura - Valor: {formattedPrice}
-            </DialogDescription>
+            {selectedPlan && (
+              <DialogDescription className="text-center">
+                Plano {selectedPlan.name} - Valor: {formatPrice(selectedPlan.price)}
+              </DialogDescription>
+            )}
           </DialogHeader>
           <div className="flex flex-col items-center justify-center p-4">
             {paymentStatus === 'paid' ? (
@@ -169,7 +187,7 @@ export function PixPayment({ price }: PixPaymentProps) {
                       Abra o app do seu banco, escaneie o QR Code ou copie o código abaixo.
                     </p>
                     <div className="p-2 border-2 border-dashed rounded-lg bg-background mb-4">
-                      <Image
+                       <Image
                         src={pixData.qrCodeImage}
                         alt="QR Code para pagamento Pix"
                         width={220}
