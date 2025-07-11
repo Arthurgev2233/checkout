@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Download, Gift } from 'lucide-react';
+import { CheckCircle, Gift } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import Link from 'next/link';
 
