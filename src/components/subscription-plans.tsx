@@ -33,7 +33,7 @@ interface Plan {
   isPopular?: boolean;
 }
 
-const plans: Plan[] = [
+const allPlans: Plan[] = [
   { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.', isPopular: true },
   { name: '90 DIAS', price: 47.00, description: 'Acesso completo por 90 dias.' },
   { name: '1 ANO', price: 87.00, description: 'Acesso completo por 1 ano.' },
@@ -45,14 +45,21 @@ export function SubscriptionPlans() {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'paid'>('pending');
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const { toast } = useToast();
+  const [modalPlanDetails, setModalPlanDetails] = useState<Plan | null>(null);
 
+  const [mainPlan, setMainPlan] = useState<Plan>(() => allPlans.find(p => p.isPopular) || allPlans[0]);
+
+  const { toast } = useToast();
+  
   const handleGeneratePix = async (plan: Plan) => {
+    if (plan.name !== mainPlan.name) {
+      setMainPlan(plan);
+    }
+
     setIsLoading(plan.name);
     setPixData(null);
     setPaymentStatus('pending');
-    setSelectedPlan(plan);
+    setModalPlanDetails(plan);
 
     const result = await generatePixPayment({ amount: plan.price });
 
@@ -119,7 +126,7 @@ export function SubscriptionPlans() {
   const closeModal = () => {
     setIsModalOpen(false);
     setPixData(null);
-    setSelectedPlan(null);
+    setModalPlanDetails(null);
   };
 
   const formatPrice = (price: number) => new Intl.NumberFormat('pt-BR', {
@@ -127,8 +134,7 @@ export function SubscriptionPlans() {
     currency: 'BRL',
   }).format(price);
 
-  const popularPlan = plans.find(p => p.isPopular) || plans[0];
-  const otherPlans = plans.filter(p => p.name !== popularPlan.name);
+  const otherPlans = allPlans.filter(p => p.name !== mainPlan.name);
 
   return (
     <>
@@ -145,17 +151,17 @@ export function SubscriptionPlans() {
             />
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <CardTitle className="text-xl font-bold">{popularPlan.name}</CardTitle>
-                <Badge variant="outline" className="text-accent border-accent/80">Mais comprado 🔥</Badge>
+                <CardTitle className="text-xl font-bold">{mainPlan.name}</CardTitle>
+                {mainPlan.isPopular && <Badge variant="outline" className="text-accent border-accent/80">Mais comprado 🔥</Badge>}
               </div>
                <p className="text-muted-foreground">
-                    Valor: <span className="font-semibold text-primary">{formatPrice(popularPlan.price)}</span>
+                    Valor: <span className="font-semibold text-primary">{formatPrice(mainPlan.price)}</span>
                </p>
             </div>
           </div>
-          <p className="text-muted-foreground mb-4">{popularPlan.description}</p>
-          <Button onClick={() => handleGeneratePix(popularPlan)} size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!!isLoading}>
-            {isLoading === popularPlan.name ? (
+          <p className="text-muted-foreground mb-4">{mainPlan.description}</p>
+          <Button onClick={() => handleGeneratePix(mainPlan)} size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!!isLoading}>
+            {isLoading === mainPlan.name ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Gerando...
@@ -214,9 +220,9 @@ export function SubscriptionPlans() {
         <DialogContent className="sm:max-w-md" onEscapeKeyDown={closeModal}>
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-bold">Pagamento via PIX</DialogTitle>
-            {selectedPlan && (
+            {modalPlanDetails && (
               <DialogDescription className="text-center">
-                Plano {selectedPlan.name} - Valor: {formatPrice(selectedPlan.price)}
+                Plano {modalPlanDetails.name} - Valor: {formatPrice(modalPlanDetails.price)}
               </DialogDescription>
             )}
           </DialogHeader>
