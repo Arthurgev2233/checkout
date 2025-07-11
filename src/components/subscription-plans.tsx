@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -14,11 +14,10 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Clipboard, ClipboardCheck, Loader2, PartyPopper, CheckCircle2 } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Loader2, PartyPopper } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import confetti from 'canvas-confetti';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 
 interface PixData {
   transactionId: number;
@@ -45,19 +44,17 @@ export function SubscriptionPlans() {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'paid'>('pending');
-  
-  const [selectedPlan, setSelectedPlan] = useState<Plan>(allPlans[0]);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   const { toast } = useToast();
   
-  const handleGeneratePix = async () => {
-    if (!selectedPlan) return;
-    
+  const handleGeneratePix = async (plan: Plan) => {
+    setSelectedPlan(plan);
     setIsLoading(true);
     setPixData(null);
     setPaymentStatus('pending');
 
-    const result = await generatePixPayment({ amount: selectedPlan.price });
+    const result = await generatePixPayment({ amount: plan.price });
 
     if (result.success && result.data) {
       setPixData(result.data);
@@ -122,6 +119,7 @@ export function SubscriptionPlans() {
   const closeModal = () => {
     setIsModalOpen(false);
     setPixData(null);
+    setSelectedPlan(null);
   };
 
   const formatPrice = (price: number) => new Intl.NumberFormat('pt-BR', {
@@ -129,64 +127,45 @@ export function SubscriptionPlans() {
     currency: 'BRL',
   }).format(price);
 
-
   return (
     <>
-      <Card className="w-full shadow-lg">
-         <CardHeader>
-             <CardTitle className="text-xl font-bold text-center">Escolha seu plano</CardTitle>
-         </CardHeader>
-        <CardContent className="p-4 md:p-6 space-y-4">
-          
-          <div className="space-y-4">
-             {allPlans.map((plan) => (
-                <div 
-                    key={plan.name} 
-                    className={cn(
-                        "p-4 rounded-lg border-2 bg-background/50 cursor-pointer transition-all relative",
-                        selectedPlan.name === plan.name ? "border-accent" : "border-border"
-                    )}
-                    onClick={() => setSelectedPlan(plan)}
-                >
-                    {selectedPlan.name === plan.name && (
-                        <CheckCircle2 className="h-5 w-5 text-accent absolute top-3 right-3" />
-                    )}
-                   <div className="flex items-center space-x-3 mb-2">
-                      <Image
-                          src="https://cdn.imgchest.com/files/yd5cer656g4.png"
-                          alt="Ícone do Plano"
-                          width={32}
-                          height={32}
-                          className="rounded-full"
-                          data-ai-hint="logo icon"
-                        />
-                      <div>
-                        <div className="flex items-center gap-2">
-                           <p className="font-bold">{plan.name}</p>
-                           {plan.badgeText && <Badge variant="outline" className="text-accent border-accent/80">{plan.badgeText}</Badge>}
-                        </div>
-                        <p className="text-muted-foreground">
-                            Valor: <span className="font-bold text-xl text-foreground">{formatPrice(plan.price)}</span>
-                        </p>
-                      </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-
-          <Button onClick={handleGeneratePix} size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading || !selectedPlan}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Gerando...
-              </>
-            ) : (
-              'Assinar agora'
-            )}
-          </Button>
-
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        {allPlans.map((plan) => (
+          <Card key={plan.name} className="w-full shadow-lg flex flex-col">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
+                {plan.badgeText && (
+                  <Badge variant="outline" className="text-accent border-accent/80">{plan.badgeText}</Badge>
+                )}
+              </div>
+              <CardDescription>{plan.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-muted-foreground">
+                Valor: <span className="font-bold text-xl text-foreground">{formatPrice(plan.price)}</span>
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                onClick={() => handleGeneratePix(plan)} 
+                size="lg" 
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" 
+                disabled={isLoading && selectedPlan?.name === plan.name}
+              >
+                {isLoading && selectedPlan?.name === plan.name ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  'Assinar agora'
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md" onEscapeKeyDown={closeModal}>
