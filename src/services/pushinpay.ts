@@ -21,7 +21,6 @@ interface PushinPayPixResponse {
         id: number;
         qr_code_text: string;
         qr_code_image: string;
-        // other fields can be added here if needed
     };
 }
 
@@ -30,18 +29,17 @@ export async function createPixCharge(amount: number) {
         throw new Error("PushinPay API token is not configured.");
     }
     
-    // The PushinPay API expects the amount in cents
     const amountInCents = Math.round(amount * 100);
 
     const payload = {
         amount: amountInCents,
         description: `Pagamento de assinatura no valor de R$${amount.toFixed(2)}`,
         payment_method: "pix",
-        postback_url: "https://your-domain.com/webhook/pushinpay", // Replace with your actual postback URL
+        postback_url: "https://your-domain.com/webhook/pushinpay", 
         customer: {
             name: "Cliente Teste",
             email: "cliente.teste@example.com",
-            document: "01234567890" // A valid CPF is required for real transactions
+            document: "01234567890" 
         }
     };
 
