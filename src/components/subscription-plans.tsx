@@ -13,7 +13,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Clipboard, ClipboardCheck, Loader2, PartyPopper, Star, Crown, Gem } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Loader2, PartyPopper } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import confetti from 'canvas-confetti';
 
@@ -27,13 +27,12 @@ interface Plan {
   name: string;
   price: number;
   description: string;
-  icon: React.ElementType;
 }
 
 const plans: Plan[] = [
-  { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.', icon: Star },
-  { name: '90 DIAS', price: 47.00, description: 'Acesso completo por 90 dias.', icon: Crown },
-  { name: '1 ANO', price: 87.00, description: 'Acesso completo por 1 ano.', icon: Gem },
+  { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.' },
+  { name: '90 DIAS', price: 47.00, description: 'Acesso completo por 90 dias.' },
+  { name: '1 ANO', price: 87.00, description: 'Acesso completo por 1 ano.' },
 ];
 
 export function SubscriptionPlans() {
@@ -131,9 +130,14 @@ export function SubscriptionPlans() {
           <Card key={plan.name} className="w-full shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
             <CardHeader>
               <div className="flex items-center space-x-3">
-                <div className="bg-primary/10 p-2 rounded-full">
-                  <plan.icon className="h-6 w-6 text-primary" />
-                </div>
+                 <Image
+                    src="https://cdn.imgchest.com/files/yd5cer656g4.png"
+                    alt="Ícone do Plano"
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                    data-ai-hint="logo icon"
+                  />
                 <div>
                   <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
                   <CardDescription>
