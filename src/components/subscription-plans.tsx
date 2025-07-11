@@ -273,7 +273,7 @@ export function SubscriptionPlans() {
                 )}
               </div>
               <DialogFooter className="sm:justify-center">
-                <Button type="button" variant="secondary" onClick={closeModal}>
+                <Button type="button" onClick={closeModal} className="bg-accent/10 text-accent hover:bg-accent/20">
                   Fechar
                 </Button>
               </DialogFooter>
