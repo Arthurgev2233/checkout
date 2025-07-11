@@ -103,25 +103,28 @@ export function SubscriptionPlans() {
       });
     });
   };
+  
+  const handlePaymentSuccess = useCallback(() => {
+    setPaymentStatus('paid');
+    if (window.fbq && selectedPlan) {
+      window.fbq('track', 'Purchase', {
+        value: selectedPlan.price,
+        currency: 'BRL',
+        content_name: selectedPlan.name,
+      });
+    }
+    router.push('/obrigado');
+  }, [selectedPlan, router]);
+
 
   const pollPaymentStatus = useCallback(async () => {
     if (!pixData?.transactionId || paymentStatus === 'paid') return;
 
     const result = await checkPixStatus({ transactionId: pixData.transactionId });
     if (result.success && result.data?.status === 'paid') {
-      setPaymentStatus('paid');
-
-      if (window.fbq && selectedPlan) {
-        window.fbq('track', 'Purchase', {
-          value: selectedPlan.price,
-          currency: 'BRL',
-          content_name: selectedPlan.name,
-        });
-      }
-      
-      router.push('/obrigado');
+      handlePaymentSuccess();
     }
-  }, [pixData, paymentStatus, selectedPlan, router]);
+  }, [pixData, paymentStatus, handlePaymentSuccess]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -235,6 +238,9 @@ export function SubscriptionPlans() {
                 <div className="mt-4 text-center text-sm text-muted-foreground animate-pulse">
                   <p>Aguardando confirmação do pagamento...</p>
                 </div>
+                 <Button onClick={handlePaymentSuccess} variant="link" className="mt-4 text-xs">
+                    Simular Pagamento Aprovado (Apenas para Teste)
+                </Button>
               </>
             ) : (
               <div className="flex flex-col items-center justify-center space-y-4 my-8">
