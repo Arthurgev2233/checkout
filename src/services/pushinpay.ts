@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-// Utiliza a variável de ambiente para a URL da API, com um valor padrão.
+// Utiliza a variável de ambiente para a URL da API, com um valor padrão para o domínio principal.
 const PUSHINPAY_API_URL = process.env.PIX_API_URL || 'https://api.pushinpay.com.br/api';
-// O código agora espera por PIX_API_TOKEN, conforme você definiu.
 const API_TOKEN = process.env.PIX_API_TOKEN;
 
 const api = axios.create({
@@ -14,7 +13,6 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(config => {
-    // A verificação agora usa a variável correta.
     if (!API_TOKEN) {
         throw new Error("A chave da API de pagamento (PIX_API_TOKEN) não foi definida no servidor.");
     }
@@ -47,6 +45,7 @@ export async function createPixCharge(amount: number) {
     };
 
     try {
+        // O caminho agora é relativo à URL base correta
         const response = await api.post<PushinPayPixResponse>('/pix/cashIn', payload);
         const { id, qr_code, qr_code_base64, payment_url } = response.data;
         
