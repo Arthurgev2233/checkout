@@ -228,7 +228,7 @@ export function SubscriptionPlans() {
                   </div>
                 <DialogTitle className="text-center text-2xl font-bold">Pagamento via PIX</DialogTitle>
                 {selectedPlan && (
-                  <DialogDescription className="text-center">
+                  <DialogDescription className="text-center text-accent font-semibold">
                     Plano {selectedPlan.name} - Valor: {formatPrice(selectedPlan.price)}
                   </DialogDescription>
                 )}
