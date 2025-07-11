@@ -56,8 +56,8 @@ export function AiAssistant() {
             <HelpCircle className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Dúvidas sobre Pix?</CardTitle>
-            <CardDescription>Nosso assistente IA pode te ajudar!</CardDescription>
+            <CardTitle className="text-2xl font-bold">Dúvidas sobre o Privacy</CardTitle>
+            <CardDescription>Após a confirmação rapida do pagamento você sera redirecionado para os conteudos da modelo</CardDescription>
           </div>
         </div>
       </CardHeader>
