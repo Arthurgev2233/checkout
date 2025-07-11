@@ -16,7 +16,7 @@ export default function Home() {
             data-ai-hint="logo privacy"
             priority
           />
-          <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
+          <p className="mt-2 text-lg text-foreground font-semibold max-w-2xl">
             Escolha o plano da sua assinatura:
           </p>
         </header>
