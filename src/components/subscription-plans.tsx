@@ -134,12 +134,22 @@ export function SubscriptionPlans() {
           <Card key={plan.name} className="w-full shadow-lg flex flex-col">
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
+                <div className="flex items-center gap-3">
+                   <Image
+                      src="https://cdn.imgchest.com/files/yd5cer656g4.png"
+                      alt="Ícone do plano"
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                      data-ai-hint="crown icon"
+                   />
+                  <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
+                </div>
                 {plan.badgeText && (
                   <Badge variant="outline" className="text-accent border-accent/80">{plan.badgeText}</Badge>
                 )}
               </div>
-              <CardDescription>{plan.description}</CardDescription>
+              <CardDescription className="pt-2">{plan.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <p className="text-muted-foreground">
