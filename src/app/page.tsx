@@ -10,7 +10,7 @@ export default function Home() {
       <main className="w-full max-w-4xl mx-auto">
         <header className="flex flex-col items-center mb-8 text-center">
           <Image
-            src="https://placehold.co/445x97.png"
+            src="https://cdn.imgchest.com/files/7lxcpdr3jo7.png"
             alt="Privacy Logo"
             width={222}
             height={48}
