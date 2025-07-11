@@ -190,7 +190,7 @@ export function SubscriptionPlans() {
                             </p>
                           </div>
                       </div>
-                      <Button onClick={() => handleGeneratePix(plan)} size="sm" className="w-full" disabled={!!isLoading}>
+                      <Button onClick={() => handleGeneratePix(plan)} size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!!isLoading}>
                         {isLoading === plan.name ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
