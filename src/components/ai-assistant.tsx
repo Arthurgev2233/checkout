@@ -28,7 +28,7 @@ export function AiAssistant() {
             <HelpCircle className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Dúvidas sobre o Privacy</CardTitle>
+            <CardTitle className="text-2xl font-bold">Dúvidas sobre o pagamento</CardTitle>
             <CardDescription>Após a confirmação rápida do pagamento você será redirecionado para os conteúdos da modelo.</CardDescription>
           </div>
         </div>
