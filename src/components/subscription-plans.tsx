@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -16,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Clipboard, ClipboardCheck, Loader2, PartyPopper } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import confetti from 'canvas-confetti';
+import { Badge } from '@/components/ui/badge';
 
 interface PixData {
   transactionId: number;
@@ -27,10 +29,11 @@ interface Plan {
   name: string;
   price: number;
   description: string;
+  isPopular?: boolean;
 }
 
 const plans: Plan[] = [
-  { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.' },
+  { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.', isPopular: true },
   { name: '90 DIAS', price: 47.00, description: 'Acesso completo por 90 dias.' },
   { name: '1 ANO', price: 87.00, description: 'Acesso completo por 1 ano.' },
 ];
@@ -139,7 +142,12 @@ export function SubscriptionPlans() {
                     data-ai-hint="logo icon"
                   />
                 <div>
-                  <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
+                    {plan.isPopular && (
+                      <Badge variant="destructive">Mais comprado 🔥</Badge>
+                    )}
+                  </div>
                   <CardDescription>
                     Valor: <span className="font-semibold text-primary">{formatPrice(plan.price)}</span>
                   </CardDescription>
