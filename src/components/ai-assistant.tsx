@@ -16,10 +16,6 @@ const faqItems = [
     {
     question: "Quais são as formas de pagamento?",
     answer: "No momento, aceitamos exclusivamente pagamentos via PIX para garantir uma aprovação rápida e segura para você."
-  },
-  {
-    question: "Posso cancelar minha assinatura?",
-    answer: "Sim, você pode gerenciar e cancelar sua assinatura a qualquer momento no seu painel de usuário após fazer o login."
   }
 ];
 
