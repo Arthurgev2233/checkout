@@ -145,7 +145,7 @@ export function SubscriptionPlans() {
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
                     {plan.isPopular && (
-                      <Badge variant="destructive">Mais comprado 🔥</Badge>
+                      <Badge className="bg-accent/20 text-accent-foreground border-accent/30 hover:bg-accent/30">Mais comprado 🔥</Badge>
                     )}
                   </div>
                   <CardDescription>
