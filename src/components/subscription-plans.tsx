@@ -13,7 +13,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Clipboard, ClipboardCheck, Loader2, CheckCircle, Gift } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Loader2, CheckCircle, Gift, Info } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
@@ -33,12 +33,14 @@ interface PixData {
 interface Plan {
   name: string;
   price: number;
+  oldPrice?: number;
   description: string;
   badgeText?: string;
+  isPromotional?: boolean;
 }
 
 const allPlans: Plan[] = [
-  { name: '30 DIAS', price: 3.50, description: 'Acesso completo por 30 dias.', badgeText: 'Mais comprado 🔥' },
+  { name: '30 DIAS', price: 12.50, oldPrice: 27.90, description: 'Acesso completo por 30 dias.', badgeText: 'Mais comprado 🔥', isPromotional: true },
   { name: '90 DIAS', price: 47.00, description: 'Acesso completo por 90 dias.', badgeText: 'Economia' },
   { name: '1 ANO', price: 87.00, description: 'Acesso completo por 1 ano.', badgeText: 'Melhor oferta' },
 ];
@@ -50,6 +52,12 @@ export function SubscriptionPlans() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'paid'>('pending');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [subscriberCount, setSubscriberCount] = useState(0);
+
+  useEffect(() => {
+    // Generate a random number for social proof on mount
+    setSubscriberCount(Math.floor(Math.random() * (250 - 100 + 1)) + 100);
+  }, []);
 
   const { toast } = useToast();
   
@@ -149,7 +157,7 @@ export function SubscriptionPlans() {
     <>
       <div className="space-y-4">
         {allPlans.map((plan) => (
-          <Card key={plan.name} className="w-full shadow-lg flex flex-col">
+          <Card key={plan.name} className={`w-full shadow-lg flex flex-col ${plan.isPromotional ? 'border-accent/50 border-2' : ''}`}>
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
@@ -170,9 +178,25 @@ export function SubscriptionPlans() {
               <CardDescription className="pt-2">{plan.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-              <p className="text-muted-foreground">
-                Valor: <span className="font-bold text-xl text-foreground">{formatPrice(plan.price)}</span>
-              </p>
+               {plan.isPromotional ? (
+                <div className="space-y-2">
+                  <p className="text-muted-foreground flex items-center gap-2">
+                    <span className="line-through">{formatPrice(plan.oldPrice!)}</span>
+                    <span className="font-bold text-2xl text-foreground">{formatPrice(plan.price)}</span>
+                  </p>
+                  <div className="text-sm text-accent font-semibold p-2 bg-accent/10 rounded-md animate-pulse">
+                    <p>⚠️ Oferta válida até 00:00!</p>
+                  </div>
+                   <div className="text-sm text-foreground flex items-center gap-2 pt-1">
+                      <Info className="h-4 w-4 text-accent" />
+                      <p><span className="font-bold">{subscriberCount}</span> pessoas já assinaram!</p>
+                   </div>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">
+                  Valor: <span className="font-bold text-xl text-foreground">{formatPrice(plan.price)}</span>
+                </p>
+              )}
             </CardContent>
             <CardFooter>
               <Button 
