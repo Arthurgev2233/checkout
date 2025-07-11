@@ -13,9 +13,18 @@ import { Clipboard, ClipboardCheck, Download, QrCode } from 'lucide-react';
 const PIX_KEY = 'a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8';
 const QR_CODE_URL = 'https://placehold.co/300x300.png';
 
-export function PixPayment() {
+interface PixPaymentProps {
+  price: number;
+}
+
+export function PixPayment({ price }: PixPaymentProps) {
   const [isCopied, setIsCopied] = useState(false);
   const { toast } = useToast();
+
+  const formattedPrice = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(price);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(PIX_KEY).then(() => {
@@ -44,7 +53,7 @@ export function PixPayment() {
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">Pague com Pix</CardTitle>
-            <CardDescription>Para sua assinatura mensal</CardDescription>
+            <CardDescription>Valor da assinatura: <span className="font-semibold text-primary">{formattedPrice}</span></CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -87,7 +96,7 @@ export function PixPayment() {
         <CardDescription className="text-center text-xs px-4 pt-4">
           1. Abra o app do seu banco e escolha a opção Pix. <br/>
           2. Escaneie o QR Code ou cole a chave Pix. <br/>
-          3. Confirme o valor e finalize o pagamento.
+          3. Confirme o valor de {formattedPrice} e finalize o pagamento.
         </CardDescription>
       </CardFooter>
     </Card>
