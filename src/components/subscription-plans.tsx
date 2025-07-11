@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -13,8 +13,9 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
-import { Clipboard, ClipboardCheck, Loader2, PartyPopper } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Loader2, PartyPopper, ChevronDown } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import confetti from 'canvas-confetti';
 import { Badge } from '@/components/ui/badge';
@@ -108,7 +109,7 @@ export function SubscriptionPlans() {
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (isModalOpen && paymentStatus === 'pending' && pixData?.transactionId) {
-      interval = setInterval(pollPaymentStatus, 5000); // Poll every 5 seconds
+      interval = setInterval(pollPaymentStatus, 5000);
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -126,53 +127,88 @@ export function SubscriptionPlans() {
     currency: 'BRL',
   }).format(price);
 
+  const popularPlan = plans.find(p => p.isPopular) || plans[0];
+  const otherPlans = plans.filter(p => p.name !== popularPlan.name);
+
   return (
     <>
-      <div className="space-y-4">
-        {plans.map((plan) => (
-          <Card key={plan.name} className="w-full shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                 <Image
-                    src="https://cdn.imgchest.com/files/yd5cer656g4.png"
-                    alt="Ícone do Plano"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                    data-ai-hint="logo icon"
-                  />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
-                    {plan.isPopular && (
-                      <Badge variant="outline" className="text-accent border-accent/80">Mais comprado 🔥</Badge>
-                    )}
-                  </div>
-                  <CardDescription>
-                    Valor: <span className="font-semibold text-primary">{formatPrice(plan.price)}</span>
-                  </CardDescription>
-                </div>
+      <Card className="w-full shadow-lg">
+        <CardContent className="p-4 md:p-6">
+          <div className="flex items-center space-x-4 mb-4">
+            <Image
+              src="https://cdn.imgchest.com/files/yd5cer656g4.png"
+              alt="Ícone do Plano"
+              width={48}
+              height={48}
+              className="rounded-full"
+              data-ai-hint="logo icon"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-xl font-bold">{popularPlan.name}</CardTitle>
+                <Badge variant="outline" className="text-accent border-accent/80">Mais comprado 🔥</Badge>
               </div>
-            </CardHeader>
+               <p className="text-muted-foreground">
+                    Valor: <span className="font-semibold text-primary">{formatPrice(popularPlan.price)}</span>
+               </p>
+            </div>
+          </div>
+          <p className="text-muted-foreground mb-4">{popularPlan.description}</p>
+          <Button onClick={() => handleGeneratePix(popularPlan)} size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!!isLoading}>
+            {isLoading === popularPlan.name ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Gerando...
+              </>
+            ) : (
+              'Assinar agora'
+            )}
+          </Button>
 
-            <CardContent className="flex flex-col items-start justify-center">
-              <p className="text-muted-foreground mb-4">
-                {plan.description}
-              </p>
-              <Button onClick={() => handleGeneratePix(plan)} size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!!isLoading}>
-                {isLoading === plan.name ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Gerando...
-                  </>
-                ) : (
-                  'Assinar agora'
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+          <Accordion type="single" collapsible className="w-full mt-4">
+            <AccordionItem value="other-plans" className="border-none">
+              <AccordionTrigger className="text-sm text-primary hover:no-underline justify-center p-2">
+                Ver outros planos
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 pt-4 border-t">
+                  {otherPlans.map((plan) => (
+                    <div key={plan.name} className="p-4 rounded-lg border bg-background/50">
+                       <div className="flex items-center space-x-3 mb-3">
+                          <Image
+                              src="https://cdn.imgchest.com/files/yd5cer656g4.png"
+                              alt="Ícone do Plano"
+                              width={32}
+                              height={32}
+                              className="rounded-full"
+                              data-ai-hint="logo icon"
+                            />
+                          <div>
+                            <p className="font-bold">{plan.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                                Valor: <span className="font-semibold text-primary">{formatPrice(plan.price)}</span>
+                            </p>
+                          </div>
+                      </div>
+                      <Button onClick={() => handleGeneratePix(plan)} size="sm" className="w-full" disabled={!!isLoading}>
+                        {isLoading === plan.name ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Gerando...
+                          </>
+                        ) : (
+                          'Assinar este plano'
+                        )}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+        </CardContent>
+      </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md" onEscapeKeyDown={closeModal}>

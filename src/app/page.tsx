@@ -22,10 +22,10 @@ export default function Home() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div className="w-full">
+          <div className="w-full lg:col-span-1">
             <SubscriptionPlans />
           </div>
-          <div className="w-full">
+          <div className="w-full lg:col-span-1">
             <AiAssistant />
           </div>
         </div>
