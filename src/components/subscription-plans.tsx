@@ -14,12 +14,12 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Clipboard, ClipboardCheck, Loader2, PartyPopper } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Loader2 } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
-import confetti from 'canvas-confetti';
 import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
 
-// Declaração da função fbq para o TypeScript
+
 declare global {
   interface Window {
     fbq?: (action: string, event: string, params?: any) => void;
@@ -54,14 +54,14 @@ export function SubscriptionPlans() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   const { toast } = useToast();
+  const router = useRouter();
   
   const handleGeneratePix = async (plan: Plan) => {
     setSelectedPlan(plan);
     setIsLoading(true);
     setPixData(null);
     setPaymentStatus('pending');
-
-    // Aciona o pixel
+    
     if (window.fbq) {
       window.fbq('track', 'InitiateCheckout', {
         value: plan.price,
@@ -104,22 +104,13 @@ export function SubscriptionPlans() {
     });
   };
 
-  const triggerConfetti = () => {
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
-  };
-
   const pollPaymentStatus = useCallback(async () => {
     if (!pixData?.transactionId || paymentStatus === 'paid') return;
 
     const result = await checkPixStatus({ transactionId: pixData.transactionId });
     if (result.success && result.data?.status === 'paid') {
       setPaymentStatus('paid');
-      triggerConfetti();
-      // Opcional: Acionar evento de 'Purchase' aqui
+
       if (window.fbq && selectedPlan) {
         window.fbq('track', 'Purchase', {
           value: selectedPlan.price,
@@ -127,13 +118,15 @@ export function SubscriptionPlans() {
           content_name: selectedPlan.name,
         });
       }
+      
+      router.push('/obrigado');
     }
-  }, [pixData, paymentStatus, selectedPlan]);
+  }, [pixData, paymentStatus, selectedPlan, router]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (isModalOpen && paymentStatus === 'pending' && pixData?.transactionId) {
-      interval = setInterval(pollPaymentStatus, 5000);
+      interval = setInterval(pollPaymentStatus, 3000); // Check every 3 seconds
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -212,52 +205,42 @@ export function SubscriptionPlans() {
             )}
           </DialogHeader>
           <div className="flex flex-col items-center justify-center p-4">
-            {paymentStatus === 'paid' ? (
-              <div className="flex flex-col items-center text-center space-y-4 my-8">
-                <PartyPopper className="h-16 w-16 text-green-500" />
-                <h3 className="text-2xl font-bold text-green-600">Pagamento Confirmado!</h3>
-                <p className="text-muted-foreground">Obrigado! Seu acesso está liberado.</p>
-              </div>
-            ) : (
+            {pixData ? (
               <>
-                {pixData ? (
-                  <>
-                    <p className="text-center text-muted-foreground mb-4">
-                      Abra o app do seu banco, escaneie o QR Code ou copie o código abaixo.
-                    </p>
-                    <div className="p-2 border-2 border-dashed rounded-lg bg-background mb-4">
-                       <Image
-                        src={pixData.qrCodeImage}
-                        alt="QR Code para pagamento Pix"
-                        width={220}
-                        height={220}
-                        className="rounded-md"
-                      />
-                    </div>
-                    <div className="w-full space-y-2">
-                      <div className="flex w-full">
-                        <input
-                          id="pix-key"
-                          readOnly
-                          value={pixData.qrCodeText}
-                          className="w-full min-w-0 flex-1 bg-muted border-input border rounded-l-md px-3 py-2 text-sm font-mono text-muted-foreground"
-                        />
-                        <Button variant="outline" size="icon" className="rounded-l-none" onClick={handleCopy} aria-label="Copiar chave Pix">
-                          {isCopied ? <ClipboardCheck className="text-green-500" /> : <Clipboard />}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="mt-4 text-center text-sm text-muted-foreground animate-pulse">
-                      <p>Aguardando confirmação do pagamento...</p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center space-y-4 my-8">
-                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                    <p className="text-muted-foreground animate-pulse">Gerando seu código Pix...</p>
+                <p className="text-center text-muted-foreground mb-4">
+                  Abra o app do seu banco, escaneie o QR Code ou copie o código abaixo.
+                </p>
+                <div className="p-2 border-2 border-dashed rounded-lg bg-background mb-4">
+                   <Image
+                    src={pixData.qrCodeImage}
+                    alt="QR Code para pagamento Pix"
+                    width={220}
+                    height={220}
+                    className="rounded-md"
+                  />
+                </div>
+                <div className="w-full space-y-2">
+                  <div className="flex w-full">
+                    <input
+                      id="pix-key"
+                      readOnly
+                      value={pixData.qrCodeText}
+                      className="w-full min-w-0 flex-1 bg-muted border-input border rounded-l-md px-3 py-2 text-sm font-mono text-muted-foreground"
+                    />
+                    <Button variant="outline" size="icon" className="rounded-l-none" onClick={handleCopy} aria-label="Copiar chave Pix">
+                      {isCopied ? <ClipboardCheck className="text-green-500" /> : <Clipboard />}
+                    </Button>
                   </div>
-                )}
+                </div>
+                <div className="mt-4 text-center text-sm text-muted-foreground animate-pulse">
+                  <p>Aguardando confirmação do pagamento...</p>
+                </div>
               </>
+            ) : (
+              <div className="flex flex-col items-center justify-center space-y-4 my-8">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <p className="text-muted-foreground animate-pulse">Gerando seu código Pix...</p>
+              </div>
             )}
           </div>
           <DialogFooter className="sm:justify-center">
