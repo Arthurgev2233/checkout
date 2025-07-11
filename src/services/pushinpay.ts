@@ -17,12 +17,14 @@ const api = axios.create({
 });
 
 interface PushinPayPixResponse {
-    transaction: {
-        id: number;
-        qr_code_text: string;
-        qr_code_image: string;
-        payment_url: string;
-    };
+    id: number;
+    qr_code: string;
+    qr_code_base64: string;
+    payment_url: string;
+}
+
+interface TransactionStatusResponse {
+    status: 'pending' | 'paid' | 'expired' | 'failed';
 }
 
 export async function createPixCharge(amount: number) {
@@ -31,28 +33,38 @@ export async function createPixCharge(amount: number) {
     }
     
     const payload = {
-        value: amount,
-        description: "Pagamento de acesso",
-        is_pix: true,
-         customer: {
-            name: "Cliente Teste",
-            email: "cliente.teste@example.com",
-            document: "01234567890" 
-        }
+        value: amount * 100, // API expects value in cents
+        webhook_url: "https://seu-site.com/webhook", // As per your example
     };
 
     try {
-        const response = await api.post<PushinPayPixResponse>('/payments', payload);
-        const { transaction } = response.data;
+        const response = await api.post<PushinPayPixResponse>('/pix/cashIn', payload);
+        const { id, qr_code, qr_code_base64, payment_url } = response.data;
         
         return {
-            transactionId: transaction.id,
-            qrCodeText: transaction.qr_code_text,
-            qrCodeImage: transaction.qr_code_image,
-            paymentUrl: transaction.payment_url,
+            transactionId: id,
+            qrCodeText: qr_code,
+            qrCodeImage: `data:image/png;base64,${qr_code_base64}`,
+            paymentUrl: payment_url,
         };
     } catch (error: any) {
         console.error('Error creating Pushin Pay charge:', error.response?.data || error.message);
         throw new Error(error.response?.data?.message || 'Failed to create Pix charge with Pushin Pay');
+    }
+}
+
+export async function checkTransactionStatus(transactionId: number) {
+     if (!API_TOKEN) {
+        throw new Error("PushinPay API token is not configured.");
+    }
+
+    try {
+        const response = await api.get<TransactionStatusResponse>(`/transactions/${transactionId}`);
+        return {
+            status: response.data.status
+        };
+    } catch (error: any) {
+        console.error('Error checking transaction status:', error.response?.data || error.message);
+        throw new Error(error.response?.data?.message || 'Failed to check transaction status');
     }
 }
