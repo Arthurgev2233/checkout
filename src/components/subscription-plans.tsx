@@ -259,7 +259,7 @@ export function SubscriptionPlans() {
                           id="pix-key"
                           readOnly
                           value={pixData.qrCodeText}
-                          className="w-full min-w-0 flex-1 bg-muted border-accent/50 border rounded-l-md px-3 py-2 text-sm font-mono text-muted-foreground"
+                          className="w-full min-w-0 flex-1 bg-accent/10 border-accent/50 border rounded-l-md px-3 py-2 text-sm font-mono text-accent"
                         />
                         <Button variant="outline" size="icon" className="rounded-l-none border-accent/50" onClick={handleCopy} aria-label="Copiar chave Pix">
                           {isCopied ? <ClipboardCheck className="text-green-500" /> : <Clipboard className="text-accent" />}
