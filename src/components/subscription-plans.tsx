@@ -155,7 +155,7 @@ export function SubscriptionPlans() {
                 {mainPlan.badgeText && <Badge variant="outline" className="text-accent border-accent/80">{mainPlan.badgeText}</Badge>}
               </div>
                <p className="text-muted-foreground">
-                    Valor: <span className="font-bold text-lg text-primary">{formatPrice(mainPlan.price)}</span>
+                    Valor: <span className="font-bold text-xl text-foreground">{formatPrice(mainPlan.price)}</span>
                </p>
             </div>
           </div>
@@ -195,7 +195,7 @@ export function SubscriptionPlans() {
                                {plan.badgeText && <Badge variant="outline" className="text-accent border-accent/80">{plan.badgeText}</Badge>}
                             </div>
                             <p className="text-muted-foreground">
-                                Valor: <span className="font-bold text-lg text-primary">{formatPrice(plan.price)}</span>
+                                Valor: <span className="font-bold text-xl text-foreground">{formatPrice(plan.price)}</span>
                             </p>
                           </div>
                       </div>
