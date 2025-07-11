@@ -13,12 +13,12 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
-import { Clipboard, ClipboardCheck, Loader2, PartyPopper } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Loader2, PartyPopper, CheckCircle2 } from 'lucide-react';
 import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import confetti from 'canvas-confetti';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface PixData {
   transactionId: number;
@@ -42,26 +42,22 @@ const allPlans: Plan[] = [
 export function SubscriptionPlans() {
   const [isCopied, setIsCopied] = useState(false);
   const [pixData, setPixData] = useState<PixData | null>(null);
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'paid'>('pending');
-  const [modalPlanDetails, setModalPlanDetails] = useState<Plan | null>(null);
-
-  const [mainPlan, setMainPlan] = useState<Plan>(() => allPlans.find(p => p.badgeText?.includes('Mais comprado')) || allPlans[0]);
+  
+  const [selectedPlan, setSelectedPlan] = useState<Plan>(allPlans[0]);
 
   const { toast } = useToast();
   
-  const handleGeneratePix = async (plan: Plan) => {
-    if (plan.name !== mainPlan.name) {
-      setMainPlan(plan);
-    }
-
-    setIsLoading(plan.name);
+  const handleGeneratePix = async () => {
+    if (!selectedPlan) return;
+    
+    setIsLoading(true);
     setPixData(null);
     setPaymentStatus('pending');
-    setModalPlanDetails(plan);
 
-    const result = await generatePixPayment({ amount: plan.price });
+    const result = await generatePixPayment({ amount: selectedPlan.price });
 
     if (result.success && result.data) {
       setPixData(result.data);
@@ -73,7 +69,7 @@ export function SubscriptionPlans() {
         description: result.error || 'Algo deu errado. Tente novamente.',
       });
     }
-    setIsLoading(null);
+    setIsLoading(false);
   };
 
   const handleCopy = () => {
@@ -126,7 +122,6 @@ export function SubscriptionPlans() {
   const closeModal = () => {
     setIsModalOpen(false);
     setPixData(null);
-    setModalPlanDetails(null);
   };
 
   const formatPrice = (price: number) => new Intl.NumberFormat('pt-BR', {
@@ -134,34 +129,53 @@ export function SubscriptionPlans() {
     currency: 'BRL',
   }).format(price);
 
-  const otherPlans = allPlans.filter(p => p.name !== mainPlan.name);
 
   return (
     <>
       <Card className="w-full shadow-lg">
-        <CardContent className="p-4 md:p-6">
-          <div className="flex items-center space-x-4 mb-4">
-            <Image
-              src="https://cdn.imgchest.com/files/yd5cer656g4.png"
-              alt="Ícone do Plano"
-              width={48}
-              height={48}
-              className="rounded-full"
-              data-ai-hint="logo icon"
-            />
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-xl font-bold">{mainPlan.name}</CardTitle>
-                {mainPlan.badgeText && <Badge variant="outline" className="text-accent border-accent/80">{mainPlan.badgeText}</Badge>}
-              </div>
-               <p className="text-muted-foreground">
-                    Valor: <span className="font-bold text-xl text-foreground">{formatPrice(mainPlan.price)}</span>
-               </p>
-            </div>
+         <CardHeader>
+             <CardTitle className="text-xl font-bold text-center">Escolha seu plano</CardTitle>
+         </CardHeader>
+        <CardContent className="p-4 md:p-6 space-y-4">
+          
+          <div className="space-y-4">
+             {allPlans.map((plan) => (
+                <div 
+                    key={plan.name} 
+                    className={cn(
+                        "p-4 rounded-lg border-2 bg-background/50 cursor-pointer transition-all relative",
+                        selectedPlan.name === plan.name ? "border-accent" : "border-border"
+                    )}
+                    onClick={() => setSelectedPlan(plan)}
+                >
+                    {selectedPlan.name === plan.name && (
+                        <CheckCircle2 className="h-5 w-5 text-accent absolute top-3 right-3" />
+                    )}
+                   <div className="flex items-center space-x-3 mb-2">
+                      <Image
+                          src="https://cdn.imgchest.com/files/yd5cer656g4.png"
+                          alt="Ícone do Plano"
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                          data-ai-hint="logo icon"
+                        />
+                      <div>
+                        <div className="flex items-center gap-2">
+                           <p className="font-bold">{plan.name}</p>
+                           {plan.badgeText && <Badge variant="outline" className="text-accent border-accent/80">{plan.badgeText}</Badge>}
+                        </div>
+                        <p className="text-muted-foreground">
+                            Valor: <span className="font-bold text-xl text-foreground">{formatPrice(plan.price)}</span>
+                        </p>
+                      </div>
+                  </div>
+                </div>
+              ))}
           </div>
-          <p className="text-muted-foreground mb-4">{mainPlan.description}</p>
-          <Button onClick={() => handleGeneratePix(mainPlan)} size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!!isLoading}>
-            {isLoading === mainPlan.name ? (
+
+          <Button onClick={handleGeneratePix} size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading || !selectedPlan}>
+            {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Gerando...
@@ -171,51 +185,6 @@ export function SubscriptionPlans() {
             )}
           </Button>
 
-          <Accordion type="single" collapsible className="w-full mt-4">
-            <AccordionItem value="other-plans" className="border-none">
-              <AccordionTrigger className="text-sm text-primary hover:no-underline justify-center p-2">
-                Ver outros planos
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4 pt-4 border-t">
-                  {otherPlans.map((plan) => (
-                    <div key={plan.name} className="p-4 rounded-lg border bg-background/50">
-                       <div className="flex items-center space-x-3 mb-3">
-                          <Image
-                              src="https://cdn.imgchest.com/files/yd5cer656g4.png"
-                              alt="Ícone do Plano"
-                              width={32}
-                              height={32}
-                              className="rounded-full"
-                              data-ai-hint="logo icon"
-                            />
-                          <div>
-                            <div className="flex items-center gap-2">
-                               <p className="font-bold">{plan.name}</p>
-                               {plan.badgeText && <Badge variant="outline" className="text-accent border-accent/80">{plan.badgeText}</Badge>}
-                            </div>
-                            <p className="text-muted-foreground">
-                                Valor: <span className="font-bold text-xl text-foreground">{formatPrice(plan.price)}</span>
-                            </p>
-                          </div>
-                      </div>
-                      <Button onClick={() => handleGeneratePix(plan)} size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!!isLoading}>
-                        {isLoading === plan.name ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Gerando...
-                          </>
-                        ) : (
-                          'Assinar este plano'
-                        )}
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
         </CardContent>
       </Card>
 
@@ -223,9 +192,9 @@ export function SubscriptionPlans() {
         <DialogContent className="sm:max-w-md" onEscapeKeyDown={closeModal}>
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-bold">Pagamento via PIX</DialogTitle>
-            {modalPlanDetails && (
+            {selectedPlan && (
               <DialogDescription className="text-center">
-                Plano {modalPlanDetails.name} - Valor: {formatPrice(modalPlanDetails.price)}
+                Plano {selectedPlan.name} - Valor: {formatPrice(selectedPlan.price)}
               </DialogDescription>
             )}
           </DialogHeader>
