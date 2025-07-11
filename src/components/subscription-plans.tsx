@@ -217,6 +217,15 @@ export function SubscriptionPlans() {
           ) : (
             <>
               <DialogHeader>
+                 <div className="flex justify-center mb-2">
+                    <Image
+                      src="https://cdn.imgchest.com/files/7lxcpdr3jo7.png"
+                      alt="Privacy Logo"
+                      width={120}
+                      height={32}
+                      data-ai-hint="logo"
+                    />
+                  </div>
                 <DialogTitle className="text-center text-2xl font-bold">Pagamento via PIX</DialogTitle>
                 {selectedPlan && (
                   <DialogDescription className="text-center">
@@ -235,7 +244,7 @@ export function SubscriptionPlans() {
                     <p className="text-center text-muted-foreground mb-4">
                       Abra o app do seu banco, escaneie o QR Code ou copie o código abaixo.
                     </p>
-                    <div className="p-2 border-2 border-dashed rounded-lg bg-background mb-4">
+                    <div className="p-2 border-2 border-dashed border-accent rounded-lg bg-background mb-4">
                       <Image
                         src={pixData.qrCodeImage}
                         alt="QR Code para pagamento Pix"
@@ -250,10 +259,10 @@ export function SubscriptionPlans() {
                           id="pix-key"
                           readOnly
                           value={pixData.qrCodeText}
-                          className="w-full min-w-0 flex-1 bg-muted border-input border rounded-l-md px-3 py-2 text-sm font-mono text-muted-foreground"
+                          className="w-full min-w-0 flex-1 bg-muted border-accent/50 border rounded-l-md px-3 py-2 text-sm font-mono text-muted-foreground"
                         />
-                        <Button variant="outline" size="icon" className="rounded-l-none" onClick={handleCopy} aria-label="Copiar chave Pix">
-                          {isCopied ? <ClipboardCheck className="text-green-500" /> : <Clipboard />}
+                        <Button variant="outline" size="icon" className="rounded-l-none border-accent/50" onClick={handleCopy} aria-label="Copiar chave Pix">
+                          {isCopied ? <ClipboardCheck className="text-green-500" /> : <Clipboard className="text-accent" />}
                         </Button>
                       </div>
                     </div>
