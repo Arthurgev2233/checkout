@@ -266,7 +266,7 @@ export function SubscriptionPlans() {
                         </Button>
                       </div>
                     </div>
-                    <div className="mt-4 text-center text-sm text-muted-foreground animate-pulse">
+                    <div className="mt-4 text-center text-sm text-foreground animate-pulse">
                       <p>Aguardando confirmação do pagamento...</p>
                     </div>
                   </>
