@@ -13,7 +13,11 @@ const faqItems = [
     question: "O acesso ao conteúdo é imediato?",
     answer: "Sim! Após a confirmação do pagamento, você será redirecionado e seu acesso ao conteúdo exclusivo será liberado instantaneamente."
   },
-    {
+  {
+    question: "Minha compra é sigilosa?",
+    answer: "Sim, sua privacidade é nossa prioridade. Todos os pagamentos e informações são processados de forma 100% segura e sigilosa. Nenhuma informação sobre a compra aparecerá na sua fatura."
+  },
+  {
     question: "Quais são as formas de pagamento?",
     answer: "No momento, aceitamos exclusivamente pagamentos via PIX para garantir uma aprovação rápida e segura para você."
   }
