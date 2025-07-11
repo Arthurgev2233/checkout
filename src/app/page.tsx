@@ -13,7 +13,7 @@ export default function Home() {
             <PiggyBank className="h-10 w-10" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-primary tracking-tight font-headline">
-            Paga Leve
+            Privacy
           </h1>
           <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
             Realize o pagamento de <span className="font-semibold text-primary">{subscriptionPrice}</span> da sua assinatura de forma rápida e segura com Pix.
@@ -29,7 +29,7 @@ export default function Home() {
           </div>
         </div>
         <footer className="text-center mt-12 text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Paga Leve. Todos os direitos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Privacy. Todos os direitos reservados.</p>
         </footer>
       </main>
     </div>

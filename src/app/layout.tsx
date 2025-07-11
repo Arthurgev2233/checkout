@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Paga Leve',
+  title: 'Privacy',
   description: 'Pagamentos Pix simplificados para assinantes.',
 };
 
