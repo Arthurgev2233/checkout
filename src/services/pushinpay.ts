@@ -3,9 +3,10 @@ import axios from 'axios';
 const PUSHINPAY_API_URL = 'https://api.pushinpay.com.br/api';
 const API_TOKEN = process.env.PUSHINPAY_API_TOKEN;
 
-if (!API_TOKEN) {
-    console.error("PUSHINPAY_API_TOKEN is not set in the environment variables.");
-}
+// Removida a verificação no nível do módulo para permitir que o erro seja tratado na chamada da função
+// if (!API_TOKEN) {
+//     console.error("PUSHINPAY_API_TOKEN is not set in the environment variables.");
+// }
 
 const api = axios.create({
   baseURL: PUSHINPAY_API_URL,

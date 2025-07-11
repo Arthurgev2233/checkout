@@ -19,7 +19,11 @@ export async function generatePixPayment(input: { amount: number }) {
 
     } catch (error: any) {
         console.error('Pushin Pay API error:', error.message);
-        return { success: false, error: 'Não foi possível gerar o Pix. Verifique o token da API e tente novamente.' };
+        // Retorna um erro mais amigável se o token não estiver configurado
+        if (error.message.includes("token is not configured")) {
+             return { success: false, error: 'Erro de configuração do servidor. A chave da API de pagamento não foi definida.' };
+        }
+        return { success: false, error: 'Não foi possível gerar o Pix. Verifique a configuração do servidor e tente novamente.' };
     }
 }
 
