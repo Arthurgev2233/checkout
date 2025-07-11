@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -119,7 +120,7 @@ export function PixPayment({ price }: PixPaymentProps) {
                 width={250}
                 height={250}
                 className="rounded-md transition-opacity duration-500 opacity-0"
-                onLoadingComplete={(image) => image.classList.remove('opacity-0')}
+                onLoad={(event) => event.currentTarget.classList.remove('opacity-0')}
               />
             </div>
             <div className="flex items-center text-muted-foreground w-full">
