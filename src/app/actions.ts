@@ -9,7 +9,7 @@ const PaymentActionInputSchema = z.object({
 
 export async function generatePixPayment(input: { amount: number }) {
     try {
-        const validatedInput = PaymentActionInput.safeParse(input);
+        const validatedInput = PaymentActionInputSchema.safeParse(input);
         if (!validatedInput.success) {
             return { success: false, error: 'Valor inválido.' };
         }
