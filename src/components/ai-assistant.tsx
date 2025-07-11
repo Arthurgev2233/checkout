@@ -24,8 +24,8 @@ export function AiAssistant() {
     <Card className="w-full shadow-lg">
       <CardHeader>
         <div className="flex items-center space-x-3">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <HelpCircle className="h-6 w-6 text-primary" />
+          <div className="bg-accent/10 p-2 rounded-full">
+            <HelpCircle className="h-6 w-6 text-accent" />
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">Dúvidas sobre o pagamento</CardTitle>
