@@ -19,6 +19,13 @@ import { generatePixPayment, checkPixStatus } from '@/app/actions';
 import confetti from 'canvas-confetti';
 import { Badge } from '@/components/ui/badge';
 
+// Declaração da função fbq para o TypeScript
+declare global {
+  interface Window {
+    fbq?: (action: string, event: string, params?: any) => void;
+  }
+}
+
 interface PixData {
   transactionId: number;
   qrCodeImage: string;
@@ -53,6 +60,15 @@ export function SubscriptionPlans() {
     setIsLoading(true);
     setPixData(null);
     setPaymentStatus('pending');
+
+    // Aciona o pixel
+    if (window.fbq) {
+      window.fbq('track', 'InitiateCheckout', {
+        value: plan.price,
+        currency: 'BRL',
+        content_name: plan.name,
+      });
+    }
 
     const result = await generatePixPayment({ amount: plan.price });
 
@@ -103,8 +119,16 @@ export function SubscriptionPlans() {
     if (result.success && result.data?.status === 'paid') {
       setPaymentStatus('paid');
       triggerConfetti();
+      // Opcional: Acionar evento de 'Purchase' aqui
+      if (window.fbq && selectedPlan) {
+        window.fbq('track', 'Purchase', {
+          value: selectedPlan.price,
+          currency: 'BRL',
+          content_name: selectedPlan.name,
+        });
+      }
     }
-  }, [pixData, paymentStatus]);
+  }, [pixData, paymentStatus, selectedPlan]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
