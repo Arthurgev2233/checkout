@@ -19,7 +19,7 @@ export default function Home() {
             priority
           />
           <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
-            Realize o pagamento de <span className="font-semibold text-primary">{subscriptionPrice}</span> da sua assinatura de forma rápida e segura com Pix.
+            Escolha o plano da sua assinatura:
           </p>
         </header>
 
