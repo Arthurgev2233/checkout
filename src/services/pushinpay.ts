@@ -21,6 +21,7 @@ interface PushinPayPixResponse {
         id: number;
         qr_code_text: string;
         qr_code_image: string;
+        payment_url: string;
     };
 }
 
@@ -29,14 +30,11 @@ export async function createPixCharge(amount: number) {
         throw new Error("PushinPay API token is not configured.");
     }
     
-    const amountInCents = Math.round(amount * 100);
-
     const payload = {
-        amount: amountInCents,
-        description: `Pagamento de assinatura no valor de R$${amount.toFixed(2)}`,
-        payment_method: "pix",
-        postback_url: "https://your-domain.com/webhook/pushinpay", 
-        customer: {
+        value: amount,
+        description: "Pagamento de acesso",
+        is_pix: true,
+         customer: {
             name: "Cliente Teste",
             email: "cliente.teste@example.com",
             document: "01234567890" 
@@ -44,13 +42,14 @@ export async function createPixCharge(amount: number) {
     };
 
     try {
-        const response = await api.post<PushinPayPixResponse>('/transaction', payload);
+        const response = await api.post<PushinPayPixResponse>('/payments', payload);
         const { transaction } = response.data;
         
         return {
             transactionId: transaction.id,
             qrCodeText: transaction.qr_code_text,
             qrCodeImage: transaction.qr_code_image,
+            paymentUrl: transaction.payment_url,
         };
     } catch (error: any) {
         console.error('Error creating Pushin Pay charge:', error.response?.data || error.message);
